@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 
 import '../../data/data_lists.dart';
 import '../../provider/user_provider.dart';
+import 'helper.dart';
 
 Future<void> generateAndPrintPDF(
     BuildContext context,
@@ -351,6 +352,8 @@ Future<void> generateAndPrintPDF(
   // الحصول على رابط لتنزيل الملف من Firebase Storage
   final docmentQRUrlPdf = await storageRef.getDownloadURL();
 
+// حفظ رابط الـ PDF في SharedPreferences
+  await saveFileUrl(docmentQRUrlPdf);
   // Save data to Firestore
   FirebaseFirestore.instance.collection('products').doc(documentPath).set({
     'type': selectedType,

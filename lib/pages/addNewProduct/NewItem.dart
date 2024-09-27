@@ -459,8 +459,23 @@ class _AddNewItemScreenState extends State<AddNewItemScreen> {
                 const SizedBox(height: 20),
                 ElevatedButton.icon(
                   icon: const Icon(Icons.save_as_outlined),
-                  label: Text('${S().print} ${S().item}'),
-                  onPressed: () {},
+                  label: const Text('Reprint item'),
+                  onPressed: () async {
+                    // استرجاع رابط الـ PDF المحفوظ
+                    String? lastSavedUrl = await getFileUrl();
+
+                    if (lastSavedUrl != null) {
+                      await openPdf(lastSavedUrl); // فتح رابط الـ PDF
+
+                      // قم باستخدام الرابط حسب حاجتك، مثلاً فتحه في المتصفح أو إعادة طباعته
+                      showToast('Last saved PDF URL: $lastSavedUrl');
+                      print('Last saved PDF URL: $lastSavedUrl');
+                      // يمكنك إضافة كود لطباعة الرابط هنا
+                    } else {
+                      showToast('No PDF URL found.');
+                      print('No PDF URL found.');
+                    }
+                  },
                 ),
               ],
             ),

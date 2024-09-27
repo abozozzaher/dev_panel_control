@@ -2,7 +2,7 @@
 
 A new Flutter project.
 
-## Version
+## Version 2.0.1
 
 2024.09.23
 
