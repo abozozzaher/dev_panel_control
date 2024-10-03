@@ -51,6 +51,11 @@ class _DataTabelFetcherForProInvState extends State<DataTabelFetcherForProInv> {
   TextEditingController allQuantityController = TextEditingController();
   TextEditingController taxController = TextEditingController();
   TextEditingController shippingController = TextEditingController();
+  TextEditingController shippingCompanyNameController = TextEditingController();
+  TextEditingController shippingReceiptNumberController =
+      TextEditingController();
+  TextEditingController shippingUnitsNumberController = TextEditingController();
+
   ValueNotifier<double> previousDebtsController = ValueNotifier<double>(0.0);
 
   int lineCounter = 1;
@@ -120,6 +125,11 @@ class _DataTabelFetcherForProInvState extends State<DataTabelFetcherForProInv> {
 
     double totalUnit = (double.tryParse(allQuantity ?? '0') ?? 0) /
         (double.tryParse(selectedQuantity ?? '0') ?? 0);
+
+    // حساب مجموع 'totalWeight' لكل صف في الجدول
+    double totalWeightSum = tableData.fold(0.0, (sum, rowData) {
+      return sum + (rowData['totalWeight'] ?? 0.0);
+    });
 
     String totalPrice = (price * (double.tryParse(allQuantity.toString()) ?? 0))
         .toStringAsFixed(2);
@@ -310,6 +320,7 @@ class _DataTabelFetcherForProInvState extends State<DataTabelFetcherForProInv> {
                       ),
                     ],
                   ),
+
                   DataTable(
                     columns: columns,
                     rows: [
@@ -410,8 +421,8 @@ class _DataTabelFetcherForProInvState extends State<DataTabelFetcherForProInv> {
                       subTotalPriceForProInv(totalPrices),
 
                       taxForProInv(tax, taxController),
-                      shippingFeesForProInv(
-                          totalPricesAndTaxAndShippingFee, shippingController),
+                      shippingFeesForProInv(totalPricesAndTaxAndShippingFee,
+                          shippingController, totalWeightSum),
 
                       duesForProInv(trader, previousDebtsController),
 

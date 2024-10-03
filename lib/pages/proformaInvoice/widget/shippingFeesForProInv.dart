@@ -3,15 +3,15 @@ import 'package:flutter/material.dart';
 import '../../../generated/l10n.dart';
 
 DataRow shippingFeesForProInv(double totalPricesAndTaxAndShippingFee,
-    TextEditingController shippingController) {
+    TextEditingController shippingController, double totalWeightSum) {
   return DataRow(cells: [
     const DataCell(Text('')),
-    const DataCell(Text('')),
-    const DataCell(Text('')),
-    const DataCell(Text('')),
-    const DataCell(Text('')),
-    const DataCell(Text('')),
-    const DataCell(Text('')),
+    const DataCell(Text('Shipping information')),
+    const DataCell(Text('كتابة اسم الشركة')),
+    const DataCell(Text('رقم الاشعار')),
+    const DataCell(Text('weight unit')),
+    const DataCell(Text('$totalWeightSum')),
+    const DataCell(Text('10')),
     DataCell(Center(child: Text(S().shipping_fees))),
     DataCell(Center(
       child: SizedBox(

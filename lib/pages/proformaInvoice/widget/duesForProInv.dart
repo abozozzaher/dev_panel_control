@@ -26,7 +26,7 @@ DataRow duesForProInv(
           textAlign: TextAlign.center,
           style: TextStyle(
               color: previousDebtsController.value == 0
-                  ? Colors.black
+                  ? Colors.green
                   : previousDebtsController.value < 1
                       ? Colors.redAccent
                       : Colors.green),
@@ -48,7 +48,7 @@ DataRow duesForProInv(
                 return Text('\$${lastDues.toStringAsFixed(2)}',
                     style: TextStyle(
                         color: lastDues == 0
-                            ? Colors.black
+                            ? Colors.green
                             : lastDues < 0
                                 ? Colors.redAccent
                                 : Colors.green,
@@ -71,7 +71,7 @@ DataRow duesForProInv(
                       fontWeight: FontWeight.bold,
                       fontSize: 18,
                       color: value == 0
-                          ? Colors.black
+                          ? Colors.green
                           : value < -1
                               ? Colors.redAccent
                               : Colors.green),
