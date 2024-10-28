@@ -1,6 +1,7 @@
 import 'package:country_state_city_pro/country_state_city_pro.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'dart:ui' as ui;
 
@@ -89,7 +90,14 @@ class _ClienEntryPageState extends State<ClienEntryPage> {
                   onPressed: () {
                     Navigator.pop(context); // لتفعيل الرجوع عند الضغط على الزر
                   },
-                )),
+                ),
+          actions: [
+            IconButton(
+                onPressed: () {
+                  context.go('/');
+                },
+                icon: const Icon(Icons.home))
+          ]),
       drawer: AppDrawer(
           toggleTheme: widget.toggleTheme, toggleLocale: widget.toggleLocale),
       body: Center(

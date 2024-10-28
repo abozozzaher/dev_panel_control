@@ -81,7 +81,7 @@ class _DialogInvoiceState extends State<DialogInvoice> {
                   children: items.map((item) {
                     final itemId = item['codeSales'] as String;
                     return CheckboxListTile(
-                      title: Text(item['codeSales']),
+                      title: Text(item['trader_name']),
                       value: selectionState[itemId] ?? false,
                       onChanged: (isChecked) {
                         setState(() {

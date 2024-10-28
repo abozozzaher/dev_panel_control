@@ -77,6 +77,7 @@ class DataLists {
   ];
 
   List<List<String>> yarnSupplier = [
+    ['Kasım', 'Kasım güllü'],
     ['Haron', 'Haron'],
     ['Malih', 'Malih'],
     ['Onder', 'Onder'],

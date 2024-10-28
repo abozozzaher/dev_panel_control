@@ -136,7 +136,14 @@ class InvoiceService {
       double previousDebts,
       double shippingFees,
       String? invoiceCode,
-      String downloadUrlPdf) async {
+      String downloadUrlPdf,
+      String shippingCompanyName,
+      String shippingTrackingNumber,
+      String packingBagsNumber,
+      double totalWeight,
+      int totalQuantity,
+      int totalLength,
+      int totalScannedData) async {
     // قائمة لجمع جميع الأسعار
     final totalLinePrices = aggregatedData.keys.map((groupKey) {
       return invoiceProvider.getPrice(groupKey);
@@ -174,6 +181,13 @@ class InvoiceService {
         'taxs': taxs,
         'previousDebts': previousDebts,
         'shippingFees': shippingFees,
+        'shippingCompanyName': shippingCompanyName,
+        'shippingTrackingNumber': shippingTrackingNumber,
+        'packingBagsNumber': packingBagsNumber,
+        "totalWeight": totalWeight,
+        "totalQuantity": totalQuantity,
+        "totalLength": totalLength,
+        "totalScannedData": totalScannedData,
         'createdAt':
             DateFormat('yyyy-MM-dd HH:mm:ss', 'en').format(DateTime.now()),
         'downloadUrlPdf': downloadUrlPdf,

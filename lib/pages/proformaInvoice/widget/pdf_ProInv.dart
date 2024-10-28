@@ -23,6 +23,11 @@ Future<void> generatePdfProInv(
   double shippingFees,
   double dues,
   double finalTotal,
+  String shippingCompanyName,
+  String shippingTrackingNumber,
+  String packingBagsNumber,
+  double totalWeightSum,
+  double totalUnitSum,
 ) async {
   String linkUrl = "https://admin.bluedukkan.com/pro-invoices/$invoiceCode";
   final svgFooter = await rootBundle.loadString('assets/img/footer.svg');
@@ -54,8 +59,20 @@ Future<void> generatePdfProInv(
         _contentHeader(context, finalTotal, isRTL, trader, fontTajRegular),
         _contentTable(context, tableData, isRTL, fontTajBold),
         pw.SizedBox(height: 20),
-        _contentFooter(context, finalTotal, tax, totalPrices, dues,
-            shippingFees, fontBeiruti, isRTL),
+        _contentFooter(
+            context,
+            finalTotal,
+            tax,
+            totalPrices,
+            dues,
+            shippingFees,
+            fontBeiruti,
+            isRTL,
+            shippingCompanyName,
+            shippingTrackingNumber,
+            packingBagsNumber,
+            totalWeightSum,
+            totalUnitSum),
         pw.SizedBox(height: 20),
         _termsAndConditions(context, fontTajBold),
       ],
@@ -75,8 +92,22 @@ Future<void> generatePdfProInv(
   // الحصول على رابط لتنزيل الملف من Firebase Storage
   final downloadUrlPdf = await storageRef.getDownloadURL();
 
-  await saveDataProInv(tableData, finalTotal, trader, totalPrices, taxWthiPrice,
-      tax, dues, shippingFees, invoiceCode, downloadUrlPdf);
+  await saveDataProInv(
+      tableData,
+      finalTotal,
+      trader,
+      totalPrices,
+      taxWthiPrice,
+      tax,
+      dues,
+      shippingFees,
+      invoiceCode,
+      downloadUrlPdf,
+      shippingCompanyName,
+      shippingTrackingNumber,
+      packingBagsNumber,
+      totalWeightSum,
+      totalUnitSum);
 }
 
 // تصميم شكل الصفحة
@@ -91,7 +122,7 @@ pw.PageTheme _buildTheme(mat.BuildContext context, String svgFooter,
             header0: pw.TextStyle(
                 font: fontTajBold,
                 fontFallback: [fontTajRegular],
-                color: PdfColors.teal,
+                color: PdfColors.blue,
                 fontWeight: pw.FontWeight.bold)),
     buildBackground: (context) => pw.FullPage(
         ignoreMargins: true,
@@ -162,7 +193,7 @@ pw.Widget _buildHeader(pw.Context context, Uint8List imageLogo, String linkUrl,
                   child: pw.Text(
                     S().blue_textiles,
                     style:
-                        const pw.TextStyle(fontSize: 20, color: PdfColors.teal),
+                        const pw.TextStyle(fontSize: 20, color: PdfColors.blue),
                   ),
                 ),
                 pw.Row(
@@ -252,7 +283,7 @@ pw.Widget _contentHeader(pw.Context context, finalTotal, bool isRTL,
             child: pw.Text(
               ' ${S().final_total} : ${_formatCurrency(finalTotal)}',
               style: pw.TextStyle(
-                  color: PdfColors.teal,
+                  color: PdfColors.blue,
                   fontStyle: pw.FontStyle.italic,
                   font: fontTajRegular),
             ),
@@ -335,7 +366,6 @@ pw.Widget _contentTable(pw.Context context,
   int lineCounter = 1;
   // استخراج البيانات من tableDataList
   final data = tableDataList.asMap().entries.map((entry) {
-    // final index = entry.key;
     final productData = entry.value;
 
     final row = [
@@ -367,7 +397,7 @@ pw.Widget _contentTable(pw.Context context,
     cellAlignment: pw.Alignment.center,
     headerDecoration: const pw.BoxDecoration(
       borderRadius: pw.BorderRadius.all(pw.Radius.circular(2)),
-      color: PdfColors.teal,
+      color: PdfColors.blue,
     ),
     headerStyle: pw.TextStyle(
         color: PdfColors.white,
@@ -384,8 +414,20 @@ pw.Widget _contentTable(pw.Context context,
 }
 
 // الذيل معلومات
-pw.Widget _contentFooter(pw.Context context, finalTotal, tax, totalPrices, dues,
-    shippingFees, pw.Font fontBeiruti, bool isRTL) {
+pw.Widget _contentFooter(
+    pw.Context context,
+    finalTotal,
+    tax,
+    totalPrices,
+    dues,
+    shippingFees,
+    pw.Font fontBeiruti,
+    bool isRTL,
+    String shippingCompanyName,
+    String shippingTrackingNumber,
+    String packingBagsNumber,
+    double totalWeightSum,
+    double totalUnitSum) {
   return pw.Row(
     crossAxisAlignment: pw.CrossAxisAlignment.start,
     children: [
@@ -404,7 +446,7 @@ pw.Widget _contentFooter(pw.Context context, finalTotal, tax, totalPrices, dues,
               child: pw.Text(
                 '${S().payment_info} :',
                 style: pw.TextStyle(
-                    color: PdfColors.teal, fontWeight: pw.FontWeight.bold),
+                    color: PdfColors.blue, fontWeight: pw.FontWeight.bold),
               ),
             ),
             pw.Text(
@@ -412,6 +454,36 @@ pw.Widget _contentFooter(pw.Context context, finalTotal, tax, totalPrices, dues,
               style:
                   pw.TextStyle(fontSize: 8, lineSpacing: 5, font: fontBeiruti),
             ),
+            pw.SizedBox(height: 20),
+            pw.Row(
+              crossAxisAlignment: pw.CrossAxisAlignment.end,
+              children: [
+                pw.Expanded(
+                  child: pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      pw.Container(
+                        decoration: const pw.BoxDecoration(
+                            border: pw.Border(top: pw.BorderSide())),
+                        padding: const pw.EdgeInsets.only(top: 10, bottom: 4),
+                        child: pw.Text(
+                          S().terms_conditions,
+                          style: pw.Theme.of(context)
+                              .header0
+                              .copyWith(fontSize: 12),
+                        ),
+                      ),
+                      pw.Text(
+                        S().terms_and_conditions,
+                        textAlign: pw.TextAlign.justify,
+                        style: const pw.TextStyle(fontSize: 4, lineSpacing: 2),
+                      ),
+                    ],
+                  ),
+                ),
+                pw.Expanded(child: pw.SizedBox()),
+              ],
+            )
           ],
         ),
       ),
@@ -464,7 +536,7 @@ pw.Widget _contentFooter(pw.Context context, finalTotal, tax, totalPrices, dues,
               pw.Divider(color: PdfColors.blueGrey900),
               pw.DefaultTextStyle(
                 style: pw.TextStyle(
-                  color: PdfColors.teal,
+                  color: PdfColors.blue,
                   fontSize: 14,
                   fontWeight: pw.FontWeight.bold,
                 ),
@@ -475,6 +547,56 @@ pw.Widget _contentFooter(pw.Context context, finalTotal, tax, totalPrices, dues,
                     pw.Text(_formatCurrency(finalTotal)),
                   ],
                 ),
+              ),
+              pw.SizedBox(height: 10),
+              pw.Center(
+                  child: pw.Text(
+                S().shipping_information,
+                style: pw.TextStyle(
+                  color: PdfColors.blue,
+                  fontSize: 14,
+                  fontWeight: pw.FontWeight.bold,
+                ),
+              )),
+              pw.Divider(color: PdfColors.blueGrey900),
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [
+                  pw.Text('${S().shipping_company_name} :'),
+                  pw.Text(shippingCompanyName),
+                ],
+              ),
+              pw.SizedBox(height: 3),
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [
+                  pw.Text('${S().shipping_tracking_number} :'),
+                  pw.Text(shippingTrackingNumber),
+                ],
+              ),
+              pw.SizedBox(height: 3),
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [
+                  pw.Text('${S().packing_bags_number} :'),
+                  pw.Text('${packingBagsNumber} ${S().bags}'),
+                ],
+              ),
+              pw.SizedBox(height: 3),
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [
+                  pw.Text('${S().total_weight} :'),
+                  pw.Text('${totalWeightSum.toStringAsFixed(0)} kg'),
+                ],
+              ),
+              pw.SizedBox(height: 3),
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [
+                  pw.Text('${S().total_unit} :'),
+                  pw.Text('$totalUnitSum ${S().unit}'),
+                ],
               ),
             ],
           ),
@@ -489,6 +611,7 @@ pw.Widget _termsAndConditions(pw.Context context, pw.Font fontTajBold) {
   return pw.Row(
     crossAxisAlignment: pw.CrossAxisAlignment.end,
     children: [
+/*
       pw.Expanded(
         child: pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -513,6 +636,7 @@ pw.Widget _termsAndConditions(pw.Context context, pw.Font fontTajBold) {
       pw.Expanded(
         child: pw.SizedBox(),
       ),
+      */
     ],
   );
 }

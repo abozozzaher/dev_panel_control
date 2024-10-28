@@ -1,4 +1,3 @@
-
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart' as mat;
 
@@ -16,18 +15,26 @@ import '../../service/account_service.dart';
 import '../../service/invoice_service.dart';
 
 Future<void> generatePdf(
-    context,
-    Map<String, dynamic> aggregatedData,
-    double grandTotalPrice, // مجموع سعر البضاعة فقط
-    double previousDebts, // الدين على العميل
-    double shippingFees, // اجور الشحن
-    List<double> prices, //سعر السطر
-    List<double> totalLinePrices, // كل مجموع الاسعار
-    double finalTotal, // الاجور النهائية
-    double taxs, // الضريبة
-    String invoiceCode,
-    InvoiceService invoiceService,
-    double grandTotalPriceTaxs) async {
+  context,
+  Map<String, dynamic> aggregatedData,
+  double grandTotalPrice, // مجموع سعر البضاعة فقط
+  double previousDebts, // الدين على العميل
+  double shippingFees, // اجور الشحن
+  List<double> prices, //سعر السطر
+  List<double> totalLinePrices, // كل مجموع الاسعار
+  double finalTotal, // الاجور النهائية
+  double taxs, // الضريبة
+  String invoiceCode,
+  InvoiceService invoiceService,
+  double grandTotalPriceTaxs,
+  String shippingCompanyName,
+  String shippingTrackingNumber,
+  String packingBagsNumber,
+  double totalWeight,
+  int totalQuantity,
+  int totalLength,
+  int totalScannedData,
+) async {
   final svgFooter = await rootBundle.loadString('assets/img/footer.svg');
   final Uint8List imageLogo = await rootBundle
       .load('assets/img/logo.png')
@@ -59,8 +66,23 @@ Future<void> generatePdf(
         _contentHeader(context, finalTotal, isRTL, trader, fontTajRegular),
         _contentTable(context, aggregatedData, prices, totalLinePrices, isRTL),
         pw.SizedBox(height: 20),
-        _contentFooter(context, finalTotal, taxs, grandTotalPrice,
-            previousDebts, shippingFees, fontBeiruti),
+        _contentFooter(
+          context,
+          finalTotal,
+          taxs,
+          grandTotalPrice,
+          previousDebts,
+          shippingFees,
+          fontBeiruti,
+          isRTL,
+          shippingCompanyName,
+          shippingTrackingNumber,
+          packingBagsNumber,
+          totalWeight,
+          totalQuantity,
+          totalLength,
+          totalScannedData,
+        ),
         pw.SizedBox(height: 20),
         _termsAndConditions(context, fontTajBold),
       ],
@@ -87,16 +109,24 @@ Future<void> generatePdf(
       trader.codeIdClien, valueAccount, invoiceCode, downloadUrlPdf);
 
   await invoiceService.saveData(
-      aggregatedData,
-      finalTotal,
-      trader,
-      grandTotalPrice,
-      grandTotalPriceTaxs,
-      taxs,
-      previousDebts,
-      shippingFees,
-      invoiceCode,
-      downloadUrlPdf);
+    aggregatedData,
+    finalTotal,
+    trader,
+    grandTotalPrice,
+    grandTotalPriceTaxs,
+    taxs,
+    previousDebts,
+    shippingFees,
+    invoiceCode,
+    downloadUrlPdf,
+    shippingCompanyName,
+    shippingTrackingNumber,
+    packingBagsNumber,
+    totalWeight,
+    totalQuantity,
+    totalLength,
+    totalScannedData,
+  );
 }
 
 // تصميم شكل الصفحة
@@ -153,7 +183,8 @@ pw.Widget _buildHeader(pw.Context context, Uint8List imageLogo, String linkUrl,
                   alignment: pw.Alignment.center,
                   height: 50,
                   child: pw.DefaultTextStyle(
-                    style: const pw.TextStyle(color: PdfColors.white, fontSize: 12),
+                    style: const pw.TextStyle(
+                        color: PdfColors.white, fontSize: 12),
                     child: pw.GridView(
                       direction: pw.Axis.horizontal,
                       crossAxisCount: 2,
@@ -181,7 +212,8 @@ pw.Widget _buildHeader(pw.Context context, Uint8List imageLogo, String linkUrl,
                   padding: const pw.EdgeInsets.only(top: 10, bottom: 4),
                   child: pw.Text(
                     S().blue_textiles,
-                    style: const pw.TextStyle(fontSize: 20, color: PdfColors.teal),
+                    style:
+                        const pw.TextStyle(fontSize: 20, color: PdfColors.teal),
                   ),
                 ),
                 pw.Row(
@@ -398,8 +430,22 @@ pw.Widget _contentTable(pw.Context context, Map<String, dynamic> aggregatedData,
 }
 
 // الذيل معلومات
-pw.Widget _contentFooter(pw.Context context, finalTotal, taxs, grandTotalPrice,
-    previousDebts, shippingFees, pw.Font fontBeiruti) {
+pw.Widget _contentFooter(
+    pw.Context context,
+    finalTotal,
+    taxs,
+    grandTotalPrice,
+    previousDebts,
+    shippingFees,
+    pw.Font fontBeiruti,
+    bool isRTL,
+    String shippingCompanyName,
+    String shippingTrackingNumber,
+    String packingBagsNumber,
+    double totalWeight,
+    int totalQuantity,
+    int totalLength,
+    int totalScannedData) {
   return pw.Row(
     crossAxisAlignment: pw.CrossAxisAlignment.start,
     children: [
@@ -430,6 +476,36 @@ pw.Widget _contentFooter(pw.Context context, finalTotal, taxs, grandTotalPrice,
               style:
                   pw.TextStyle(fontSize: 8, lineSpacing: 5, font: fontBeiruti),
             ),
+            pw.SizedBox(height: 20),
+            pw.Row(
+              crossAxisAlignment: pw.CrossAxisAlignment.end,
+              children: [
+                pw.Expanded(
+                  child: pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      pw.Container(
+                        decoration: const pw.BoxDecoration(
+                            border: pw.Border(top: pw.BorderSide())),
+                        padding: const pw.EdgeInsets.only(top: 10, bottom: 4),
+                        child: pw.Text(
+                          S().terms_conditions,
+                          style: pw.Theme.of(context)
+                              .header0
+                              .copyWith(fontSize: 12),
+                        ),
+                      ),
+                      pw.Text(
+                        S().terms_and_conditions,
+                        textAlign: pw.TextAlign.justify,
+                        style: const pw.TextStyle(fontSize: 4, lineSpacing: 2),
+                      ),
+                    ],
+                  ),
+                ),
+                pw.Expanded(child: pw.SizedBox()),
+              ],
+            )
           ],
         ),
       ),
@@ -494,6 +570,72 @@ pw.Widget _contentFooter(pw.Context context, finalTotal, taxs, grandTotalPrice,
                   ],
                 ),
               ),
+              pw.SizedBox(height: 10),
+              pw.Center(
+                  child: pw.Text(
+                S().shipping_information,
+                style: pw.TextStyle(
+                  color: PdfColors.teal,
+                  fontSize: 14,
+                  fontWeight: pw.FontWeight.bold,
+                ),
+              )),
+              pw.Divider(color: PdfColors.blueGrey900),
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [
+                  pw.Text('${S().shipping_company_name} :'),
+                  pw.Text(shippingCompanyName),
+                ],
+              ),
+              pw.SizedBox(height: 3),
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [
+                  pw.Text('${S().shipping_tracking_number} :'),
+                  pw.Text(shippingTrackingNumber),
+                ],
+              ),
+              pw.SizedBox(height: 3),
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [
+                  pw.Text('${S().packing_bags_number} :'),
+                  pw.Text('${packingBagsNumber} ${S().bags}'),
+                ],
+              ),
+              pw.SizedBox(height: 3),
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [
+                  pw.Text('${S().total_weight} :'),
+                  pw.Text('${totalWeight.toStringAsFixed(0)} kg'),
+                ],
+              ),
+              pw.SizedBox(height: 3),
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [
+                  pw.Text('${S().total_roll} :'),
+                  pw.Text('$totalQuantity ${S().roll}'),
+                ],
+              ),
+              pw.SizedBox(height: 3),
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [
+                  pw.Text('${S().total_unit} :'),
+                  pw.Text('${totalScannedData.toStringAsFixed(0)} ${S().unit}'),
+                ],
+              ),
+              pw.SizedBox(height: 3),
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [
+                  pw.Text('${S().total_length} :'),
+                  pw.Text('$totalLength MT'),
+                ],
+              ),
             ],
           ),
         ),
@@ -507,13 +649,14 @@ pw.Widget _termsAndConditions(pw.Context context, pw.Font fontTajBold) {
   return pw.Row(
     crossAxisAlignment: pw.CrossAxisAlignment.end,
     children: [
+      /*
       pw.Expanded(
         child: pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
           children: [
             pw.Container(
-              decoration:
-                  const pw.BoxDecoration(border: pw.Border(top: pw.BorderSide())),
+              decoration: const pw.BoxDecoration(
+                  border: pw.Border(top: pw.BorderSide())),
               padding: const pw.EdgeInsets.only(top: 10, bottom: 4),
               child: pw.Text(
                 S().terms_conditions,
@@ -531,6 +674,7 @@ pw.Widget _termsAndConditions(pw.Context context, pw.Font fontTajBold) {
       pw.Expanded(
         child: pw.SizedBox(),
       ),
+      */
     ],
   );
 }
@@ -542,6 +686,7 @@ String _formatCurrency(double amount) {
 DateTime now = DateTime.now();
 
 String _formatDate(DateTime date) {
-  final format = '${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year}';
+  final format =
+      '${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year}';
   return format;
 }

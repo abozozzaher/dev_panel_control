@@ -10,17 +10,25 @@ import '../../../service/toasts.dart';
 import '../pdf_Inv.dart';
 
 Directionality tableBuilld(
-    List<DataColumn> columns,
-    List<DataRow> dataRows,
-    InvoiceService invoiceService,
-    InvoiceProvider invoiceProvider,
-    double grandTotalPriceTaxs,
-    BuildContext context,
-    double grandTotalPrice,
-    ValueNotifier<double> previousDebtsNotifier,
-    ValueNotifier<double> shippingFeesNotifier,
-    ValueNotifier<double> taxsNotifier,
-    String? invoiceCode) {
+  List<DataColumn> columns,
+  List<DataRow> dataRows,
+  InvoiceService invoiceService,
+  InvoiceProvider invoiceProvider,
+  double grandTotalPriceTaxs,
+  BuildContext context,
+  double grandTotalPrice,
+  ValueNotifier<double> previousDebtsNotifier,
+  ValueNotifier<double> shippingFeesNotifier,
+  TextEditingController shippingCompanyNameController,
+  TextEditingController shippingTrackingNumberController,
+  TextEditingController packingBagsNumberController,
+  ValueNotifier<double> taxsNotifier,
+  String? invoiceCode,
+  double totalWeight,
+  int totalQuantity,
+  int totalLength,
+  int totalScannedData,
+) {
   //final trader = Provider.of<TraderProvider>(context).trader;
   final traderClean = Provider.of<TraderProvider>(context);
 
@@ -111,23 +119,37 @@ Directionality tableBuilld(
                   final taxs = taxsNotifier.value;
                   final previousDebts = previousDebtsNotifier.value;
                   final shippingFees = shippingFeesNotifier.value;
+                  final shippingCompanyName =
+                      shippingCompanyNameController.text;
+                  final shippingTrackingNumber =
+                      shippingTrackingNumberController.text;
+                  final packingBagsNumber = packingBagsNumberController.text;
+
                   final total =
                       (grandTotalPriceTaxs + shippingFees) - previousDebts;
 
                   // إنشاء وعرض ملف الـ PDF
                   await generatePdf(
-                      context,
-                      aggregatedData,
-                      grandTotalPrice,
-                      previousDebts,
-                      shippingFees,
-                      prices,
-                      totalLinePrices,
-                      total,
-                      taxs,
-                      invoiceCode!,
-                      invoiceService,
-                      grandTotalPriceTaxs);
+                    context,
+                    aggregatedData,
+                    grandTotalPrice,
+                    previousDebts,
+                    shippingFees,
+                    prices,
+                    totalLinePrices,
+                    total,
+                    taxs,
+                    invoiceCode!,
+                    invoiceService,
+                    grandTotalPriceTaxs,
+                    shippingCompanyName,
+                    shippingTrackingNumber,
+                    packingBagsNumber,
+                    totalWeight,
+                    totalQuantity,
+                    totalLength,
+                    totalScannedData,
+                  );
 
                   context.go('/');
                   // تفريغ الجدول من البيانات

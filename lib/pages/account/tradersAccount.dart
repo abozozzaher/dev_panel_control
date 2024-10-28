@@ -179,12 +179,11 @@ class _TradersAccountState extends State<TradersAccount> {
                               );
                             },
                             trailing: Text(
-                              //  '${S().dues}: ${dues.toStringAsFixed(2)}\$',
-                              dues.toStringAsFixed(2),
+                              '${dues.toStringAsFixed(2)}\$',
                               textDirection: TextDirection.ltr,
                               textAlign: TextAlign.end,
                               style: TextStyle(
-                                  color: dues > -1 ? Colors.green : Colors.red,
+                                  color: dues > 0 ? Colors.green : Colors.red,
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold),
                             ),
