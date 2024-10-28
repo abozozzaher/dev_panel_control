@@ -7,9 +7,8 @@ import '../../data/data_lists.dart';
 import '../../generated/l10n.dart';
 import '../../service/toasts.dart';
 import 'DropdownButton.dart';
+import 'Excel_Inventory.dart';
 import 'SelectedMonthsDialog.dart'; // Assuming you are using localization strings
-import 'package:syncfusion_flutter_xlsio/xlsio.dart' as xlsio;
-import 'dart:html' as html;
 
 class Inventory extends StatefulWidget {
   final VoidCallback toggleTheme;
@@ -65,101 +64,96 @@ class _InventoryState extends State<Inventory> {
       }
 
       // إذا كان التطبيق يعمل على الويب، نفذ عملية الفاتش مباشرة
-      //  if (kIsWeb) {
-      for (String month in months) {
-        Query query = FirebaseFirestore.instance
-            .collection('products')
-            .doc('productsForAllMonths')
-            .collection(month)
-            .where('sale_status', isEqualTo: false);
+      if (kIsWeb) {
+        for (String month in months) {
+          Query query = FirebaseFirestore.instance
+              .collection('products')
+              .doc('productsForAllMonths')
+              .collection(month)
+              .where('sale_status', isEqualTo: false);
 
-        // تطبيق الفلاتر بناءً على القيم المختارة من القوائم المنسدلة
-        if (selectedType != null) {
-          query = query.where('type', isEqualTo: selectedType);
-        }
-        if (selectedColor != null) {
-          query = query.where('color', isEqualTo: selectedColor);
-        }
-        if (selectedWidth != null) {
-          query = query.where('width', isEqualTo: selectedWidth);
-        }
-        if (selectedYarnNumber != null) {
-          query = query.where('yarn_number', isEqualTo: selectedYarnNumber);
-        }
-        if (selectedQuantity != null) {
-          query = query.where('quantity', isEqualTo: selectedQuantity);
-        }
-        if (selectedLength != null) {
-          query = query.where('length', isEqualTo: selectedLength);
-        }
-
-        QuerySnapshot snapshot = await query.get();
-        List<Map<String, dynamic>> monthProducts = snapshot.docs
-            .map((doc) => doc.data() as Map<String, dynamic>)
-            .toList();
-
-        if (monthProducts.isNotEmpty && headers.isEmpty) {
-          headers = [
-            (S().type),
-            (S().color),
-            (S().width),
-            (S().yarn_number),
-            (S().quantity),
-            (S().length),
-            (S().total_length),
-            (S().total_weight),
-            (S().scanned)
-          ];
-        }
-
-        for (var product in monthProducts) {
-          String key =
-              '${product['yarn_number']}-${product['type']}-${product['color']}-${product['width']}-${product['length']}';
-
-          if (!allProducts.containsKey(key)) {
-            // لم يتم العثور على المنتج في قاعدة البيانات، لذا احضره من Firebase وقم بحفظه في SQLite
-            allProducts[key] = {
-              'yarn_number': product['yarn_number'],
-              'type': product['type'],
-              'color': product['color'],
-              'width': product['width'],
-              'length': product['length'],
-              'total_weight': 0.0,
-              'quantity': 0,
-              'total_length': 0.0,
-              'scanned_data': 0,
-            };
-
-            // تخزين المنتج في SQLite مباشرة إذا كان على الويب
-            databaseHelper.saveProductToDatabaseInventory(
-                allProducts[key]!, key);
+          // تطبيق الفلاتر بناءً على القيم المختارة من القوائم المنسدلة
+          if (selectedType != null) {
+            query = query.where('type', isEqualTo: selectedType);
+          }
+          if (selectedColor != null) {
+            query = query.where('color', isEqualTo: selectedColor);
+          }
+          if (selectedWidth != null) {
+            query = query.where('width', isEqualTo: selectedWidth);
+          }
+          if (selectedYarnNumber != null) {
+            query = query.where('yarn_number', isEqualTo: selectedYarnNumber);
+          }
+          if (selectedQuantity != null) {
+            query = query.where('quantity', isEqualTo: selectedQuantity);
+          }
+          if (selectedLength != null) {
+            query = query.where('length', isEqualTo: selectedLength);
           }
 
-          // حساب الطول * الكمية
-          double totalLength = (product['length'] is int
-                  ? product['length']
-                  : int.tryParse(product['length'].toString()) ?? 0) *
-              (product['quantity'] is int
-                  ? product['quantity']
-                  : int.tryParse(product['quantity'].toString()) ?? 0);
-// تحديث البيانات المحسوبة
-          allProducts[key]!['total_weight'] +=
-              double.tryParse(product['total_weight'].toString()) ?? 0.0;
-          allProducts[key]!['quantity'] += product['quantity'] is int
-              ? product['quantity']
-              : int.tryParse(product['quantity'].toString()) ?? 0;
-          // حفظ الطول النهائي (بشكل مباشر دون جمع)
-          //    allProducts[key]!['length'] = product['length'] is int              ? product['length']              : int.tryParse(product['length'].toString()) ?? 0;
-          allProducts[key]!['total_length'] +=
-              totalLength; // الحفاظ على الطول الكلي
+          QuerySnapshot snapshot = await query.get();
+          List<Map<String, dynamic>> monthProducts = snapshot.docs
+              .map((doc) => doc.data() as Map<String, dynamic>)
+              .toList();
 
-          // حفظ الطول المختصر
-          allProducts[key]!['formatted_length'] =
-              formatNumber(allProducts[key]!['total_length']);
-          allProducts[key]!['scanned_data'] += 1;
+          if (monthProducts.isNotEmpty && headers.isEmpty) {
+            headers = [
+              (S().type),
+              (S().color),
+              (S().width),
+              (S().yarn_number),
+              (S().quantity),
+              (S().length),
+              (S().total_length),
+              (S().total_weight),
+              (S().scanned)
+            ];
+          }
+
+          for (var product in monthProducts) {
+            String key =
+                '${product['yarn_number']}-${product['type']}-${product['color']}-${product['width']}-${product['length']}';
+
+            if (!allProducts.containsKey(key)) {
+              // لم يتم العثور على المنتج في قاعدة البيانات، لذا احضره من Firebase وقم بحفظه في SQLite
+              allProducts[key] = {
+                'yarn_number': product['yarn_number'],
+                'type': product['type'],
+                'color': product['color'],
+                'width': product['width'],
+                'length': product['length'],
+                'total_weight': 0.0,
+                'quantity': 0,
+                'total_length': 0.0,
+                'scanned_data': 0,
+              };
+
+              // تخزين المنتج في SQLite مباشرة إذا كان على الويب
+              databaseHelper.saveProductToDatabaseInventory(
+                  allProducts[key]!, key);
+            }
+
+            // حساب الطول * الكمية
+            double totalLength = (product['length'] is int
+                    ? product['length']
+                    : int.tryParse(product['length'].toString()) ?? 0) *
+                (product['quantity'] is int
+                    ? product['quantity']
+                    : int.tryParse(product['quantity'].toString()) ?? 0);
+            // تحديث البيانات المحسوبة
+            allProducts[key]!['total_weight'] +=
+                double.tryParse(product['total_weight'].toString()) ?? 0.0;
+            allProducts[key]!['quantity'] += product['quantity'] is int
+                ? product['quantity']
+                : int.tryParse(product['quantity'].toString()) ?? 0;
+            allProducts[key]!['total_length'] += totalLength;
+            // حفظ الطول المختصر
+            allProducts[key]!['formatted_length'] =
+                formatNumber(allProducts[key]!['total_length']);
+            allProducts[key]!['scanned_data'] += 1;
+          }
         }
-      }
-      /*
       } else {
         // إذا لم يكن على الويب، تحقق من وجود البيانات في SQLite
         List<Map<String, dynamic>> existingProducts =
@@ -215,7 +209,7 @@ class _InventoryState extends State<Inventory> {
 
           for (var product in monthProducts) {
             String key =
-                '${product['yarn_number']}-${product['type']}-${product['color']}-${product['width']}';
+                '${product['yarn_number']}-${product['type']}-${product['color']}-${product['width']}-${product['length']}';
 
             if (!allProducts.containsKey(key)) {
               // لم يتم العثور على المنتج في قاعدة البيانات، لذا احضره من Firebase وقم بحفظه في SQLite
@@ -224,7 +218,7 @@ class _InventoryState extends State<Inventory> {
                 'type': product['type'],
                 'color': product['color'],
                 'width': product['width'],
-                'length': 0,
+                'length': product['length'],
                 'total_weight': 0.0,
                 'quantity': 0,
                 'total_length': 0.0,
@@ -243,22 +237,20 @@ class _InventoryState extends State<Inventory> {
                 (product['quantity'] is int
                     ? product['quantity']
                     : int.tryParse(product['quantity'].toString()) ?? 0);
-// تحديث البيانات المحسوبة
             allProducts[key]!['total_weight'] +=
                 double.tryParse(product['total_weight'].toString()) ?? 0.0;
             allProducts[key]!['quantity'] += product['quantity'] is int
                 ? product['quantity']
                 : int.tryParse(product['quantity'].toString()) ?? 0;
-            allProducts[key]!['length'] += totalLength; // حفظ الطول النهائي
-
+            allProducts[key]!['total_length'] += totalLength;
             // حفظ الطول المختصر
             allProducts[key]!['formatted_length'] =
-                formatNumber(allProducts[key]!['length']);
+                formatNumber(allProducts[key]!['total_length']);
             allProducts[key]!['scanned_data'] += 1;
           }
         }
       }
-*/
+
       setState(() {
         aggregatedData = allProducts;
         columnHeaders = headers;
@@ -267,63 +259,6 @@ class _InventoryState extends State<Inventory> {
       showToast('Error fetching products: #301');
       print('Error fetching products: $e');
     }
-  }
-
-  Future<void> exportToExcel() async {
-    final now = DateTime.now();
-    final formattedDateXlsx = '${now.day}-${now.month}-${now.year}';
-
-    final xlsio.Workbook workbook = xlsio.Workbook();
-    final xlsio.Worksheet sheet = workbook.worksheets[0];
-
-    // إضافة العناوين للعمود الأول في Excel
-    for (int i = 0; i < columnHeaders.length; i++) {
-      var cell = sheet.getRangeByIndex(1, i + 1);
-      cell.setText(columnHeaders[i]);
-      cell.cellStyle.bold = true;
-      cell.cellStyle.fontColor = '#FF0000';
-    }
-
-    // إضافة البيانات في الصفوف التالية
-    int row = 2; // البدء من الصف الثاني حيث أن الصف الأول هو للعناوين
-    aggregatedData.entries.forEach((entry) {
-      final itemData = entry.value;
-      sheet
-          .getRangeByIndex(row, 1)
-          .setText(DataLists().translateType(itemData['type'].toString()));
-      sheet.getRangeByIndex(row, 1).cellStyle.bold = true;
-      sheet
-          .getRangeByIndex(row, 2)
-          .setText(DataLists().translateType(itemData['color'].toString()));
-      sheet.getRangeByIndex(row, 2).cellStyle.bold = true;
-      sheet
-          .getRangeByIndex(row, 3)
-          .setNumber(double.tryParse(itemData['width'].toString()) ?? 0);
-
-      sheet
-          .getRangeByIndex(row, 4)
-          .setNumber(double.tryParse(itemData['yarn_number'].toString()) ?? 0);
-      sheet.getRangeByIndex(row, 5).setNumber(itemData['quantity']);
-      sheet
-          .getRangeByIndex(row, 6)
-          .setNumber(double.tryParse(itemData['length'].toString()) ?? 0);
-      sheet.getRangeByIndex(row, 7).setNumber(itemData['total_length']);
-      sheet.getRangeByIndex(row, 8).setNumber(itemData['total_weight']);
-      sheet.getRangeByIndex(row, 9).setNumber(itemData['scanned_data']);
-      row++;
-    });
-
-    final List<int> bytes = workbook.saveAsStream();
-    workbook.dispose();
-
-    // تنزيل الملف على الويب
-    final blob = html.Blob([bytes],
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    final url = html.Url.createObjectUrlFromBlob(blob);
-    final anchor = html.AnchorElement(href: url)
-      ..setAttribute('download', 'products_data$formattedDateXlsx.xlsx')
-      ..click();
-    html.Url.revokeObjectUrl(url);
   }
 
   @override
@@ -359,7 +294,9 @@ class _InventoryState extends State<Inventory> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
-                onPressed: exportToExcel, // هنا وظيفة التصدير
+                onPressed: () {
+                  exportToExcel(columnHeaders, aggregatedData);
+                }, // هنا وظيفة التصدير
                 child: Text(S().export_to_excel, textAlign: TextAlign.center),
               ),
             ),
