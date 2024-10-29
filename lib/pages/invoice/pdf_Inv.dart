@@ -633,7 +633,8 @@ pw.Widget _contentFooter(
                 mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                 children: [
                   pw.Text('${S().total_length} :'),
-                  pw.Text('$totalLength MT'),
+                  //pw.Text('$totalLength MT'),
+                  pw.Text('${formatNumber(totalLength)} MT'),
                 ],
               ),
             ],
@@ -642,6 +643,18 @@ pw.Widget _contentFooter(
       ),
     ],
   );
+}
+
+String formatNumber(int num) {
+  if (num >= 1000000000) {
+    return (num / 1000000000).toStringAsFixed(1) + 'B'; // مليار
+  } else if (num >= 1000000) {
+    return (num / 1000000).toStringAsFixed(1) + 'M'; // مليون
+  } else if (num >= 1000) {
+    return (num / 1000).toStringAsFixed(1) + 'k'; // ألف
+  } else {
+    return num.toStringAsFixed(1); // أقل من ألف
+  }
 }
 
 // سياسية الارجاع

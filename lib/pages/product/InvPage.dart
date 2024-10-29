@@ -27,6 +27,18 @@ class _InvoicePageState extends State<InvoicePage> {
     return '${date.day}/${date.month}/${date.year}';
   }
 
+  String formatNumber(double num) {
+    if (num >= 1000000000) {
+      return (num / 1000000000).toStringAsFixed(1) + 'B'; // مليار
+    } else if (num >= 1000000) {
+      return (num / 1000000).toStringAsFixed(1) + 'M'; // مليون
+    } else if (num >= 1000) {
+      return (num / 1000).toStringAsFixed(1) + 'k'; // ألف
+    } else {
+      return num.toStringAsFixed(1); // أقل من ألف
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     String linkUrl =
@@ -565,7 +577,10 @@ class _InvoicePageState extends State<InvoicePage> {
                                       MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text('${S().total_length} :'),
-                                    Text('${data['totalLength']} MT'),
+                                    Text(
+                                      '${formatNumber(data['totalLength'])} MT',
+                                      textDirection: TextDirection.ltr,
+                                    ),
                                   ],
                                 ),
                               ],
