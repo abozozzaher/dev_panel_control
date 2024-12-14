@@ -21,6 +21,7 @@ import 'pages/product/InvPage.dart';
 import 'pages/product/ProductPage.dart';
 import 'pages/product/proInvPage.dart';
 import 'pages/scan/ScanItem.dart';
+import 'pages/work/work_time.dart';
 import 'provider/data_table_model.dart';
 import 'provider/invoice_provider.dart';
 import 'provider/scan_item_provider.dart';
@@ -75,6 +76,16 @@ flutter pub run intl_utils:generate
 http://localhost:62665/pro-invoices/1014230224
 
 http://localhost:62665/240010000200190031/invoices/1014230224
+
+
+اضافات يوم 13/12/2024
+اصبح الراس بيري يقوم بحساب مدة تشغيل الماكينة
+تعديلات لازم اضافها
+يظهر مدة التشغيل حسب اسم العامل والماكينة المستلمها
+يقوم بتصفير المدة الساعة 4 و 12 و 8 صباحا
+عمل في الراس بيري خيار يقوم في نهاية كل وردية تسجيل مدة التشغيلي فقط
+يظهر للعامل مدة التشغيل اخر سبع ايام فقط في حال كان يوجد له ساعات عمل
+في بداية تشغيل الراس بيري يقوم بارسال حالة الوصل اول بداية التشغيل (تسجيل دخول)
 
 
 
@@ -365,6 +376,43 @@ class _MyAppState extends State<MyApp> {
             }
             if (snapshot.data == true) {
               return ScanItemQr(
+                toggleTheme: _toggleTheme,
+                toggleLocale: _toggleLocale,
+              );
+            } else {
+              return Scaffold(
+                body: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(S().access_denied_you_do_not_have_the_required_role),
+                      const SizedBox(height: 20), // لإضافة مسافة بين النص والزر
+                      ElevatedButton(
+                        onPressed: () {
+                          // الانتقال إلى الصفحة الرئيسية
+                          context.go('/');
+                        },
+                        child: Text(S().go_to_page),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }
+          },
+        ),
+      ),
+      GoRoute(
+        path: '/work',
+        builder: (context, state) => FutureBuilder<bool>(
+          future: checkUserRole(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Scaffold(
+                  body: Center(child: CircularProgressIndicator.adaptive()));
+            }
+            if (snapshot.data == true) {
+              return WorkTime(
                 toggleTheme: _toggleTheme,
                 toggleLocale: _toggleLocale,
               );
